@@ -1,4 +1,4 @@
-import Amplify, { API, graphqlOperation } from "@aws-amplify/api";
+import Amplify, { API, graphqlOperation, Auth } from 'aws-amplify';
 
 import awsconfig from "./aws-exports";
 import { createTodo } from "./graphql/mutations";
@@ -32,6 +32,7 @@ const getData = async ()=> {
     QueryResult.innerHTML += `<p>${item.name} - ${item.createdAt}</p>`
   }));
 }
+getData()
 
 const SubscriptionResult = document.getElementById("SubscriptionResult");
 API.graphql(graphqlOperation(onCreateTodo)).subscribe(event => {
@@ -39,4 +40,52 @@ API.graphql(graphqlOperation(onCreateTodo)).subscribe(event => {
   SubscriptionResult.innerHTML += `<p>${item.name} - ${item.createdAt}</p>`
 });
 
-getData()
+const signUp = async (username, password, email)=> {
+    try {
+        const user = await Auth.signUp({ username, password, attributes:{email} });
+        console.log({ user });
+    } catch (error) {
+        console.log('error signing up:', error);
+    }
+}
+
+const confirmSignUp = async (username, code) => {
+  try {
+    const confirm = await Auth.confirmSignUp(username, code);
+    console.debug('OK', confirm);
+  }catch(error){console.error(error)}
+}
+
+const login =  async (username, password) => {
+  try {
+    const user = await Auth.signIn(username, password);
+    console.debug('OK', user)
+  } catch (error) {
+      console.log('error signing in', error);
+  }
+}
+
+const SignInForm = document.getElementById('sign-up-form');
+SignInForm.addEventListener("submit", event => {
+  event.preventDefault();
+  const username =  document.getElementById('sign-up-username').value;
+  const password =  document.getElementById('sign-up-password').value;
+  const email =  document.getElementById('sign-up-email').value;
+  signUp(username, password, email)
+});
+
+const ConfirmForm = document.getElementById('confirm-form');
+ConfirmForm.addEventListener("submit", event => {
+  event.preventDefault();
+  const username =  document.getElementById('confirm-username').value;
+  const code =  document.getElementById('confirm-code').value;
+  confirmSignUp(username, code)
+});
+
+const SignIn = document.getElementById('login-form');
+SignIn.addEventListener("submit", event => {
+  event.preventDefault();
+  const username =  document.getElementById('login-username').value;
+  const password =  document.getElementById('login-password').value;
+  login(username, password)
+});

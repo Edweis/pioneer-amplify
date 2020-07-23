@@ -17,6 +17,9 @@
                     "appId": "d1kfz8bym0cp42",
                     "type": "cicd"
                 }
+            },
+            "auth": {
+                "pioneera627f97b": {}
             }
         }
     }
